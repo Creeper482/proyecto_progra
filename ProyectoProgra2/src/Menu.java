@@ -1,49 +1,63 @@
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 
 public class Menu {
-    private static Scanner scanner = new Scanner(System.in);
-
     public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        RegistrarUsuario registro = new RegistrarUsuario();
+        List<Usuarios> listaUsuarios = new ArrayList<>();
 
-        System.out.println("""
-            Bienvenido al registro de avance de obra:
-            indique la accion que desea realizar
-    
-            1. Registrarse
-            2. Ingresar
-            3. Salir
-        """);
+        int opcion ;
 
-    int opcion = scanner.nextInt();
         try {
-            switch (opcion){
-                case 1: Registrarse(); break;
-                case 2: Ingresar(); break;
-                case 3: Salir(); break;
-            }
+
+            do {
+                System.out.println("""
+                    Bienvenido al registro de avance de obra:
+                    indique la accion que desea realizar
+                    1. Registrarse
+                    2. Ingresar
+                    3. Salir
+                """);
+                opcion= scanner.nextInt();
+                scanner.nextLine();
+
+                switch (opcion) {
+                    case 1:
+                        System.out.println("Bienvenido al sistema, procederemos a registrarlo");
+                        Usuarios nuevoUsuario = registro.RegistrarNuevoUsuario(scanner);
+                        listaUsuarios.add(nuevoUsuario);
+                        break;
+                    case 2:
+                        Ingresar(scanner, listaUsuarios);
+                        break;
+                    case 3:
+                        System.out.println("Gracias por venir, vuelve pronto");
+                        break;
+                }
+            } while (opcion != 3);
+
         } catch (Exception e) {
             System.out.println("Ingrese una accion valida");
         }
     }
 
-    private static void Registrarse(){
-        System.out.println("Bienvenido al sistema, procederemos a registrarlo");
-        RegistrarNuevoUsuario.RegistrarNuevoUsuario();
-    }
+    private static void Ingresar(Scanner scanner, List<Usuarios> listaUsuarios) {
 
-    private static void Ingresar(){
-        System.out.println("Ingrese su nombre de usuario");
-        String nUsuario = scanner.nextLine();
+        System.out.println("Ingrese su correo");
+        String correoIngreso = scanner.nextLine();
         System.out.println("Ingrese su password");
-        String password = scanner.nextLine();
+        String passwordIngreso = scanner.nextLine();
 
+        boolean loginExitoso = false;
 
-
-
-    }
-
-    private static void Salir(){
-        System.out.println("Gracias por usar el sistema de registro de avance de obra," +
-                "\nvuelva pronto.");
+        for (Usuarios u: listaUsuarios){
+            if(u.getCorreo().equals(correoIngreso) && u.getPassword().equals(passwordIngreso)){
+                System.out.println("Bienvenido "+u.getNombre()+" "+u.getApellido());
+                loginExitoso=true;
+                break;
+            }
+        }
     }
 }
