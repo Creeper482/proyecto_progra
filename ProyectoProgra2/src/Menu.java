@@ -8,26 +8,26 @@ public class Menu {
         RegistrarUsuario registro = new RegistrarUsuario();
         List<Usuarios> listaUsuarios = new ArrayList<>();
 
-        int opcion ;
+        int opcion = 0;
 
-        try {
+        do {
 
-            do {
+            try {
                 System.out.println("""
-                    Bienvenido al registro de avance de obra:
-                    indique la accion que desea realizar
+                    Bienvenido al registro de avance de obra
+                    indique la accion que desea realizar:
                     1. Registrarse
                     2. Ingresar
                     3. Salir
                 """);
-                opcion= scanner.nextInt();
-                scanner.nextLine();
+                opcion = Integer.parseInt(scanner.nextLine());
 
                 switch (opcion) {
                     case 1:
                         System.out.println("Bienvenido al sistema, procederemos a registrarlo");
                         Usuarios nuevoUsuario = registro.RegistrarNuevoUsuario(scanner);
                         listaUsuarios.add(nuevoUsuario);
+                        System.out.println("Usuario registrado con exito\n");
                         break;
                     case 2:
                         Ingresar(scanner, listaUsuarios);
@@ -36,28 +36,32 @@ public class Menu {
                         System.out.println("Gracias por venir, vuelve pronto");
                         break;
                 }
-            } while (opcion != 3);
-
-        } catch (Exception e) {
-            System.out.println("Ingrese una accion valida");
-        }
+            }catch (Exception e) {
+                System.out.println("Ingrese una accion valida");
+            }
+        }while (opcion != 3);
+        scanner.close();
     }
 
     private static void Ingresar(Scanner scanner, List<Usuarios> listaUsuarios) {
-
         System.out.println("Ingrese su correo");
         String correoIngreso = scanner.nextLine();
+
         System.out.println("Ingrese su password");
         String passwordIngreso = scanner.nextLine();
 
         boolean loginExitoso = false;
 
-        for (Usuarios u: listaUsuarios){
-            if(u.getCorreo().equals(correoIngreso) && u.getPassword().equals(passwordIngreso)){
-                System.out.println("Bienvenido "+u.getNombre()+" "+u.getApellido());
-                loginExitoso=true;
+        for (Usuarios u : listaUsuarios) {
+            if (u.getCorreo().equals(correoIngreso) && u.getPassword().equals(passwordIngreso)) {
+                System.out.println("Bienvenido " + u.getNombre() + " " + u.getApellido());
+                loginExitoso = true;
                 break;
             }
+        }
+
+        if (!loginExitoso) {
+            System.out.println("Correo o contraseña incorrectos. Por favor, intente de nuevo.");
         }
     }
 }
