@@ -14,14 +14,14 @@ public class RegistrarUsuario {
         String correo = scanner.nextLine();
 
         System.out.println("Ingrese su RNI");
-        int rni = scanner.nextInt();
-        scanner.nextLine();
+        int RNI = Integer.parseInt(scanner.nextLine());
 
         System.out.println("Establezca una contraseña para su cuenta");
         String password = scanner.nextLine();
 
-        return new Usuarios(nombre, apellido, correo, rni, password);
+        return new Usuarios(nombre, apellido, correo, RNI, password);
     }
 
 }
+
 
