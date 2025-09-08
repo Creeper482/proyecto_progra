@@ -5,6 +5,7 @@ import java.util.Scanner;
 public class Sesion {
     public Sesion (Scanner scanner){
         CrearProyecto creado = new CrearProyecto();
+        RegistroAvance registrado = new RegistroAvance();
         List<Proyectos> listaProyectos = new ArrayList<>();
 
         Proyectos proyectos= new Proyectos("Red Tower", "CondtructoraUPB", "proy1","aqui","Andrew", 4,"cuce123");
@@ -31,7 +32,7 @@ public class Sesion {
                         break;
                     case 2:
                         System.out.println("Vamos a registrar el avance de un proyecto");
-
+                        registrado.menuAvance();
                         break;
                     case 3:
                         System.out.println("Vamos a eliminar un proyecto"); break;
@@ -44,3 +45,4 @@ public class Sesion {
         }while (opcion!=4);
     }
 }
+
