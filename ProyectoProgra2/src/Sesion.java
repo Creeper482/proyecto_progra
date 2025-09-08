@@ -8,7 +8,7 @@ public class Sesion {
         RegistroAvance registrado = new RegistroAvance();
         List<Proyectos> listaProyectos = new ArrayList<>();
 
-        Proyectos proyectos= new Proyectos("Red Tower", "CondtructoraUPB", "proy1","aqui","Andrew", 4,"cuce123");
+        Proyectos proyectos= new Proyectos("Red Tower", "ConstructoraUPB", "proy1","aqui","Andrew", 4,"cuce123");
         listaProyectos.add(proyectos);
 
         int opcion=0;
@@ -45,4 +45,5 @@ public class Sesion {
         }while (opcion!=4);
     }
 }
+
 
