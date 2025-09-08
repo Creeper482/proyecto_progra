@@ -1,95 +1,52 @@
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 public class Avance {
-    private String fechaInicio;
-    private String fechaFin;
-    private String itemAvanzado;
-    private String residente;
-    private String ejeX;
-    private String ejeY;
-    private String nPiso;
+    private Date fechaInicio;
+    private Date fechaFin;
+    private Items itemAvanzado;
     private Double cantidad;
     private Double costo;
 
-    public Avance(String fechaInicio, String fechaFin, String itemAvanzado, String residente, String ejeX, String ejeY, String nPiso, double cantidad, double costo){
+    public Avance(Date fechaInicio, Date fechaFin, Items itemAvanzado, double cantidad){
         this.fechaInicio=fechaInicio;
         this.fechaFin=fechaFin;
         this.itemAvanzado=itemAvanzado;
-        this.residente=residente;
-        this.ejeX=ejeX;
-        this.ejeY=ejeY;
-        this.nPiso=nPiso;
         this.cantidad=cantidad;
-        this.costo=costo;
+        this.costo=this.cantidad*this.itemAvanzado.getPU();
     }
 
-    public String getFechaInicio() {
+    public Date getFechaInicio() {
         return fechaInicio;
     }
 
-    public void setFechaInicio(String fechaInicio) {
-        this.fechaInicio = fechaInicio;
-    }
-
-    public String getFechaFin() {
+    public Date getFechaFin() {
         return fechaFin;
     }
 
-    public void setFechaFin(String fechaFin) {
-        this.fechaFin = fechaFin;
-    }
-
-    public String getItemAvanzado() {
+    public Items getItemAvanzado() {
         return itemAvanzado;
-    }
-
-    public void setItemAvanzado(String itemAvanzado) {
-        this.itemAvanzado = itemAvanzado;
-    }
-
-    public String getResidente() {
-        return residente;
-    }
-
-    public void setResidente(String residente) {
-        this.residente = residente;
-    }
-
-    public String getEjeX() {
-        return ejeX;
-    }
-
-    public void setEjeX(String ejeX) {
-        this.ejeX = ejeX;
-    }
-
-    public String getEjeY() {
-        return ejeY;
-    }
-
-    public void setEjeY(String ejeY) {
-        this.ejeY = ejeY;
-    }
-
-    public String getnPiso() {
-        return nPiso;
-    }
-
-    public void setnPiso(String nPiso) {
-        this.nPiso = nPiso;
     }
 
     public Double getCantidad() {
         return cantidad;
     }
 
-    public void setCantidad(Double cantidad) {
-        this.cantidad = cantidad;
-    }
-
     public Double getCosto() {
         return costo;
     }
 
-    public void setCosto(Double costo) {
-        this.costo = costo;
+    public String getNombreDelItemAvanzado() {
+        return itemAvanzado.getNombreItem();
+    }
+
+    @Override
+    public String toString() {
+        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+        return "Avance del Item: " + getNombreDelItemAvanzado() +
+                " | Fecha Inicio: " + sdf.format(fechaInicio) +
+                " | Fecha Fin: " + sdf.format(fechaFin) +
+                " | Cantidad: " + cantidad +
+                " | Costo: " + costo;
     }
 }
