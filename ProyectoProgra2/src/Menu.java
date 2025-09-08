@@ -8,6 +8,9 @@ public class Menu {
         RegistrarUsuario registro = new RegistrarUsuario();
         List<Usuarios> listaUsuarios = new ArrayList<>();
 
+        Usuarios usuarios = new Usuarios("admin","istrador","c",4,"a123");
+        listaUsuarios.add(usuarios);
+
         int opcion = 0;
 
         do {
@@ -18,8 +21,8 @@ public class Menu {
                     indique la accion que desea realizar:
                     1. Registrarse
                     2. Ingresar
-                    3. Salir
-                """);
+                    3. Salir""");
+
                 opcion = Integer.parseInt(scanner.nextLine());
 
                 switch (opcion) {
@@ -33,7 +36,7 @@ public class Menu {
                         Ingresar(scanner, listaUsuarios);
                         break;
                     case 3:
-                        System.out.println("Gracias por venir, vuelve pronto");
+                        System.out.println("Gracias por usar el Sistema");
                         break;
                 }
             }catch (Exception e) {
@@ -62,6 +65,9 @@ public class Menu {
 
         if (!loginExitoso) {
             System.out.println("Correo o contraseña incorrectos. Por favor, intente de nuevo.");
+        }
+        if (loginExitoso){
+            Sesion sesion= new Sesion(scanner);
         }
     }
 }
