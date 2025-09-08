@@ -7,12 +7,14 @@ public class RegistroAvance {
     private static List<Avance> listaAvances = new ArrayList<>();
     private static Scanner scanner = new Scanner(System.in);
 
-    public static void main(String[] args) {
+    public RegistroAvance() {
 
         listaItems.add(new Items("Muro", 150.0, "m2"));
         listaItems.add(new Items("Revoque", 50.0, "m2"));
         listaItems.add(new Items("Pintura", 30.0, "m2"));
+    }
 
+    public void menuAvance(){
         int opcion;
 
         do {
@@ -154,4 +156,5 @@ public class RegistroAvance {
         }
     }
 }
+
 
