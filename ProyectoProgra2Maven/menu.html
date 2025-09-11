@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Admin de Avance de Obra</title>
+  <style>
+    :root{
+      --bg:#ffffff; /* fondo blanco */
+      --fg:#111111; /* texto negro */
+      --muted:#4b5563; /* gris */
+      --card:#ffffff; /* tarjetas */
+      --border:#e5e7eb; /* bordes claros */
+      --brand:#16a34a; /* verde principal */
+      --brand-600:#15803d; /* verde hover */
+      --brand-50:#ecfdf5; /* verde muy claro */
+      --warn:#b91c1c; /* rojo aviso */
+      --radius:16px;
+      --shadow:0 10px 25px rgba(0,0,0,.06);
+    }
+
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--fg);
+      font-family:Inter, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji";
+      line-height:1.45;
+    }
+
+    /* Layout básico */
+    .wrap{max-width:1160px;margin:0 auto;padding:24px}
+    header{display:flex;gap:16px;align-items:center;justify-content:space-between;margin-bottom:20px}
+    .brand{display:flex;align-items:center;gap:12px}
+    .brand-logo{width:40px;height:40px;border-radius:10px;background:linear-gradient(135deg,var(--brand),#22c55e);box-shadow:var(--shadow)}
+    .brand h1{font-size:20px;margin:0}
+
+    .top-actions{display:flex;gap:8px;align-items:center}
+    .btn{
+      appearance:none;
+      border:1px solid var(--border);
+      background:var(--brand-50);
+      color:var(--brand-600);
+      font-weight:600;
+      padding:10px 16px;
+      border-radius:12px;
+      cursor:pointer;
+      transition:.2s ease;
+      box-shadow:0 2px 4px rgba(0,0,0,.05);
+    }
+    .btn:hover{background:var(--brand);color:#fff;transform:translateY(-1px)}
+    .btn.primary{background:var(--brand);border-color:var(--brand);color:#fff}
+    .btn.primary:hover{background:var(--brand-600)}
+    .btn.ghost{background:transparent;border:1px dashed var(--muted);color:var(--muted)}
+    .btn.ghost:hover{background:var(--brand-50);color:var(--brand-600)}
+
+    /* Tabs */
+    .tabs{display:flex;gap:8px;flex-wrap:wrap;margin:6px 0 18px}
+    .tab{padding:10px 14px;border:1px solid var(--border);border-radius:999px;background:#fff;cursor:pointer;transition:.2s}
+    .tab:hover{background:var(--brand-50);color:var(--brand-600)}
+    .tab.active{background:var(--brand);border-color:var(--brand);color:#fff}
+
+    /* Cards */
+    .grid{display:grid;grid-template-columns:1.1fr 2fr;gap:16px}
+    @media(max-width:920px){.grid{grid-template-columns:1fr}}
+
+    .card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);transition:.2s}
+    .card:hover{transform:translateY(-2px);box-shadow:0 6px 15px rgba(0,0,0,.08)}
+    .card .hd{padding:14px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;background:var(--brand-50)}
+    .card .hd h2{font-size:16px;margin:0;color:var(--brand-600)}
+    .card .bd{padding:16px}
+
+    /* Formulario */
+    .form{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+    .form .full{grid-column:1/-1}
+    label{font-size:12px;color:var(--muted);font-weight:600}
+    input,select,textarea{
+      width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:10px;background:#fff;color:#111;transition:.2s
+    }
+    input:focus,select:focus,textarea:focus{outline:none;border-color:var(--brand);box-shadow:0 0 0 2px var(--brand-50)}
+
+    .inline{display:flex;gap:10px;flex-wrap:wrap}
+    .help{font-size:12px;color:var(--muted)}
+
+    /* Tabla */
+    .table-wrap{overflow:auto;border-radius:12px;border:1px solid var(--border)}
+    table{width:100%;border-collapse:collapse;font-size:14px;background:#fff}
+    thead th{position:sticky;top:0;background:var(--brand-50);border-bottom:2px solid var(--brand);text-align:left;padding:10px;white-space:nowrap;color:var(--brand-600)}
+    tbody td{border-top:1px solid var(--border);padding:10px;vertical-align:top}
+    tbody tr:nth-child(even){background:#f9fafb}
+    tbody tr:hover{background:var(--brand-50)}
+    .tag{display:inline-block;padding:2px 8px;border-radius:999px;background:var(--brand-50);color:#065f46;border:1px solid var(--brand)}
+
+    .toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+    .toolbar .search{flex:1;min-width:220px;padding:8px 12px;border-radius:8px;border:1px solid var(--border)}
+
+    .empty{padding:24px;text-align:center;color:var(--muted)}
+
+    /* Modal simple */
+    .modal{position:fixed;inset:0;background:rgba(0,0,0,.35);display:none;align-items:center;justify-content:center;padding:20px}
+    .modal.open{display:flex;animation:fadeIn .3s}
+    @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+    .modal .sheet{max-width:680px;width:100%;background:#fff;border-radius:16px;border:1px solid var(--border);box-shadow:var(--shadow)}
+
+    .footer{margin-top:18px;color:var(--muted);font-size:12px;text-align:center}
+    .kpi{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:12px}
+    @media(max-width:700px){.kpi{grid-template-columns:repeat(2,1fr)}}
+    .kpi .k{border:1px solid var(--border);border-radius:14px;padding:12px;background:#fff;text-align:center;box-shadow:0 2px 5px rgba(0,0,0,.05)}
+    .k .t{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}
+    .k .v{font-size:18px;font-weight:700;color:var(--brand-600)}
+  </style>
+</head>
+<body>
+
+  <div class="wrap">
+    <header>
+      <div class="brand">
+        <div class="brand-logo" aria-hidden="true"></div>
+        <h1>Gestión de Obra</h1>
+      </div>
+      <div class="top-actions">
+        <button class="btn ghost" id="btn-export">Exportar CSV</button>
+        <button class="btn primary" id="btn-nuevo">Nuevo Avance</button>
+      </div>
+    </header>
+
+    <!-- Tabs -->
+    <nav class="tabs" role="tablist">
+      <button class="tab active" data-tab="avances">Avances</button>
+      <button class="tab" data-tab="items">Ítems</button>
+      <button class="tab" data-tab="proyectos">Proyectos</button>
+      <button class="tab" data-tab="usuarios">Usuarios</button>
+    </nav>
+
+    <!-- KPI -->
+    <section class="kpi" id="kpi">
+      <div class="k"><div class="t">Avances cargados</div><div class="v" id="kpi-avances">0</div></div>
+      <div class="k"><div class="t">Costo total (Bs.)</div><div class="v" id="kpi-costo">0.00</div></div>
+      <div class="k"><div class="t">Ítems activos</div><div class="v" id="kpi-items">0</div></div>
+      <div class="k"><div class="t">Proyectos</div><div class="v" id="kpi-proyectos">0</div></div>
+    </section>
+
+    <div class="grid">
+      <!-- Columna izquierda: formularios -->
+      <section class="card" id="form-card">
+        <div class="hd"><h2 id="form-title">Registrar Avance</h2></div>
+        <div class="bd">
+          <!-- Form Avance -->
+          <form id="form-avance" class="form" autocomplete="off">
+            <div>
+              <label>Fecha inicio</label>
+              <input type="date" name="fechaInicio" required />
+            </div>
+            <div>
+              <label>Fecha fin</label>
+              <input type="date" name="fechaFin" required />
+            </div>
+            <div>
+              <label>Ítem avanzado</label>
+              <input type="text" name="itemAvanzado" placeholder="Ej. Cimentación" required />
+            </div>
+            <div>
+              <label>Residente</label>
+              <input type="text" name="residente" placeholder="Nombre del residente" required />
+            </div>
+            <div>
+              <label>Eje X</label>
+              <input type="text" name="ejeX" placeholder="Ej. A" />
+            </div>
+            <div>
+              <label>Eje Y</label>
+              <input type="text" name="ejeY" placeholder="Ej. 1" />
+            </div>
+            <div>
+              <label>Nº Piso</label>
+              <input type="text" name="nPiso" placeholder="Ej. 3" />
+            </div>
+            <div>
+              <label>Cantidad</label>
+              <input type="number" name="cantidad" min="0" step="0.01" required />
+            </div>
+            <div>
+              <label>Costo (Bs.)</label>
+              <input type="number" name="costo" min="0" step="0.01" required />
+            </div>
+            <div class="full inline">
+              <button class="btn primary" type="submit">Guardar</button>
+              <button class="btn" type="reset">Limpiar</button>
+            </div>
+          </form>
+
+          <!-- Form Items -->
+          <form id="form-item" class="form" style="display:none" autocomplete="off">
+            <div>
+              <label>ID Ítem</label>
+              <input type="number" name="idItem" min="1" required />
+            </div>
+            <div>
+              <label>Nombre Ítem</label>
+              <input type="text" name="nItem" required />
+            </div>
+            <div>
+              <label>Precio Unitario (PU)</label>
+              <input type="number" name="PU" step="0.01" min="0" required />
+            </div>
+            <div>
+              <label>Unidades</label>
+              <input type="text" name="unidades" placeholder="m², m³, unidad, etc." />
+            </div>
+            <div class="full">
+              <label>Creado por</label>
+              <input type="text" name="creadoPor" />
+            </div>
+            <div class="full inline">
+              <button class="btn primary" type="submit">Guardar Ítem</button>
+              <button class="btn" type="reset">Limpiar</button>
+            </div>
+          </form>
+
+          <!-- Form Proyectos -->
+          <form id="form-proyecto" class="form" style="display:none" autocomplete="off">
+            <div class="full">
+              <label>Nombre del proyecto</label>
+              <input type="text" name="nombreProyecto" required />
+            </div>
+            <div>
+              <label>Empresa</label>
+              <input type="text" name="empresa" required />
+            </div>
+            <div>
+              <label>Código</label>
+              <input type="text" name="codProyecto" required />
+            </div>
+            <div>
+              <label>Geolocalización</label>
+              <input type="text" name="geolocalizacion" placeholder="Lat,Lng o dirección" />
+            </div>
+            <div>
+              <label>Director de Proyecto</label>
+              <input type="text" name="directorProyecto" />
+            </div>
+            <div>
+              <label>RNI Director</label>
+              <input type="number" name="rniDirector" />
+            </div>
+            <div class="full">
+              <label>CUCE</label>
+              <input type="text" name="cuce" />
+            </div>
+            <div class="full inline">
+              <button class="btn primary" type="submit">Guardar Proyecto</button>
+              <button class="btn" type="reset">Limpiar</button>
+            </div>
+          </form>
+
+          <!-- Form Usuarios (registro simple) -->
+          <form id="form-usuario" class="form" style="display:none" autocomplete="off">
+            <div>
+              <label>Nombre</label>
+              <input type="text" name="nombre" required />
+            </div>
+            <div>
+              <label>Apellido</label>
+              <input type="text" name="apellido" required />
+            </div>
+            <div>
+              <label>Correo</label>
+              <input type="email" name="correo" required />
+            </div>
+            <div>
+              <label>RNI</label>
+              <input type="number" name="RNI" required />
+            </div>
+            <div class="full">
+              <label>Contraseña</label>
+              <input type="password" name="password" required />
+            </div>
+            <div class="full inline">
+              <button class="btn primary" type="submit">Registrar Usuario</button>
+              <button class="btn" type="reset">Limpiar</button>
+            </div>
+          </form>
+        </div>
+      </section>
+
+      <!-- Columna derecha: tabla -->
+      <section class="card">
+        <div class="hd">
+          <h2 id="table-title">Avances registrados</h2>
+          <div class="toolbar">
+            <input class="search" id="q" type="search" placeholder="Buscar... (residente, item, eje, proyecto)" />
+            <button class="btn" id="btn-clear">Limpiar filtro</button>
+          </div>
+        </div>
+        <div class="bd">
+          <div class="table-wrap">
+            <table id="data-table" aria-live="polite">
+              <thead id="thead"></thead>
+              <tbody id="tbody"></tbody>
+            </table>
+          </div>
+          <div class="empty" id="empty">No hay registros para mostrar.</div>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <!-- Modal confirmación básica -->
+  <div class="modal" id="modal">
+    <div class="sheet">
+      <div class="hd"><h2>Confirmar</h2></div>
+      <div class="bd">
+        <p id="modal-text">¿Seguro que deseas eliminar este registro?</p>
+        <div class="inline">
+          <button class="btn" id="modal-cancel">Cancelar</button>
+          <button class="btn primary" id="modal-ok">Eliminar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+  // --- Estado simple (simula almacenamiento local). Reemplazar por fetch() a tu backend Java.
+  const DB = {
+    avances: [],
+    items: [],
+    proyectos: [],
+    usuarios: []
+  };
+
+  // Cargar/guardar en localStorage
+  const persist = () => localStorage.setItem('obraDB', JSON.stringify(DB));
+  const load = () => Object.assign(DB, JSON.parse(localStorage.getItem('obraDB')||'{}'));
+  load();
+
+  // Elementos clave
+  const tabs = document.querySelectorAll('.tab');
+  const forms = {
+    avances: document.getElementById('form-avance'),
+    items: document.getElementById('form-item'),
+    proyectos: document.getElementById('form-proyecto'),
+    usuarios: document.getElementById('form-usuario')
+  };
+  const titles = {
+    avances: {form:'Registrar Avance', table:'Avances registrados'},
+    items: {form:'Registrar Ítem', table:'Ítems registrados'},
+    proyectos: {form:'Registrar Proyecto', table:'Proyectos registrados'},
+    usuarios: {form:'Registrar Usuario', table:'Usuarios registrados'},
+  };
+  const formCardTitle = document.getElementById('form-title');
+  const tableTitle = document.getElementById('table-title');
+
+  const thead = document.getElementById('thead');
+  const tbody = document.getElementById('tbody');
+  const empty = document.getElementById('empty');
+  const q = document.getElementById('q');
+  const btnClear = document.getElementById('btn-clear');
+  const btnNuevo = document.getElementById('btn-nuevo');
+  const btnExport = document.getElementById('btn-export');
+
+  const modal = document.getElementById('modal');
+  const modalText = document.getElementById('modal-text');
+  const modalCancel = document.getElementById('modal-cancel');
+  const modalOk = document.getElementById('modal-ok');
+
+  let active = 'avances';
+  let pendingDelete = null; // {type, id}
+
+  // Definición de columnas por vista
+  const columns = {
+    avances: [
+      {key:'id', label:'ID', th: 'ID'},
+      {key:'fechaInicio', label:'Inicio'},
+      {key:'fechaFin', label:'Fin'},
+      {key:'itemAvanzado', label:'Ítem'},
+      {key:'residente', label:'Residente'},
+      {key:'ejeX', label:'Eje X'},
+      {key:'ejeY', label:'Eje Y'},
+      {key:'nPiso', label:'Piso'},
+      {key:'cantidad', label:'Cantidad'},
+      {key:'costo', label:'Costo (Bs.)'},
+      {key:'actions', label:'Acciones'}
+    ],
+    items: [
+      {key:'idItem', label:'ID'},
+      {key:'nItem', label:'Ítem'},
+      {key:'PU', label:'PU (Bs.)'},
+      {key:'unidades', label:'Unidades'},
+      {key:'creadoPor', label:'Creado por'},
+      {key:'actions', label:'Acciones'}
+    ],
+    proyectos: [
+      {key:'id', label:'ID'},
+      {key:'nombreProyecto', label:'Proyecto'},
+      {key:'empresa', label:'Empresa'},
+      {key:'codProyecto', label:'Código'},
+      {key:'directorProyecto', label:'Director'},
+      {key:'geolocalizacion', label:'Geolocalización'},
+      {key:'cuce', label:'CUCE'},
+      {key:'actions', label:'Acciones'}
+    ],
+    usuarios: [
+      {key:'id', label:'ID'},
+      {key:'nombre', label:'Nombre'},
+      {key:'apellido', label:'Apellido'},
+      {key:'correo', label:'Correo'},
+      {key:'RNI', label:'RNI'},
+      {key:'actions', label:'Acciones'}
+    ]
+  };
+
+  // Helpers
+  const uid = () => Math.random().toString(36).slice(2,9);
+
+  function setActive(tab){
+    active = tab;
+    tabs.forEach(t=>t.classList.toggle('active', t.dataset.tab===tab));
+    Object.entries(forms).forEach(([k,form])=>{
+      form.style.display = (k===tab) ? 'grid' : 'none';
+    });
+    formCardTitle.textContent = titles[tab].form;
+    tableTitle.textContent = titles[tab].table;
+    q.value = '';
+    render();
+  }
+
+  tabs.forEach(t=>t.addEventListener('click', ()=>setActive(t.dataset.tab)));
+
+  // Render tabla
+  function render(){
+    const data = DB[active] || [];
+    const cols = columns[active];
+
+    // KPI
+    document.getElementById('kpi-avances').textContent = DB.avances.length;
+    document.getElementById('kpi-costo').textContent = sum(DB.avances.map(a=>Number(a.costo||0))).toFixed(2);
+    document.getElementById('kpi-items').textContent = DB.items.length;
+    document.getElementById('kpi-proyectos').textContent = DB.proyectos.length;
+
+    // thead
+    thead.innerHTML = '<tr>' + cols.map(c=>`<th>${c.label||c.th||c.key}</th>`).join('') + '</tr>';
+
+    // filtro
+    const term = (q.value||'').toLowerCase().trim();
+    const filtered = term ? data.filter(row => JSON.stringify(row).toLowerCase().includes(term)) : data;
+
+    // tbody
+    tbody.innerHTML = '';
+    filtered.forEach(row => {
+      const tr = document.createElement('tr');
+      cols.forEach(c =>{
+        const td = document.createElement('td');
+        if(c.key==='actions'){
+          td.innerHTML = `
+            <div class="inline">
+              <button class="btn" data-edit="${row.id||row.idItem}">Editar</button>
+              <button class="btn" data-del="${row.id||row.idItem}">Eliminar</button>
+            </div>`;
+        } else {
+          let val = row[c.key];
+          if(c.key==='PU' || c.key==='costo') val = Number(val||0).toFixed(2);
+          td.textContent = val ?? '';
+        }
+        tr.appendChild(td);
+      });
+      tbody.appendChild(tr);
+    });
+
+    empty.style.display = filtered.length ? 'none' : 'block';
+  }
+
+  function sum(arr){ return arr.reduce((a,b)=>a + (+b||0), 0); }
+
+  // CRUD Avance
+  forms.avances.addEventListener('submit', (e)=>{
+    e.preventDefault();
+    const fd = new FormData(e.target);
+    const obj = Object.fromEntries(fd.entries());
+    obj.id = obj.id || uid();
+    obj.cantidad = parseFloat(obj.cantidad || '0');
+    obj.costo = parseFloat(obj.costo || '0');
+    const idx = DB.avances.findIndex(x=>x.id===obj.id);
+    if(idx>-1) DB.avances[idx] = obj; else DB.avances.push(obj);
+    persist();
+    e.target.reset();
+    render();
+  });
+
+  // CRUD Item
+  forms.items.addEventListener('submit', (e)=>{
+    e.preventDefault();
+    const fd = new FormData(e.target);
+    const obj = Object.fromEntries(fd.entries());
+    obj.idItem = Number(obj.idItem);
+    const idx = DB.items.findIndex(x=>x.idItem===obj.idItem);
+    if(idx>-1) DB.items[idx] = obj; else DB.items.push(obj);
+    persist();
+    e.target.reset();
+    render();
+  });
+
+  // CRUD Proyecto
+  forms.proyectos.addEventListener('submit', (e)=>{
+    e.preventDefault();
+    const fd = new FormData(e.target);
+    const obj = Object.fromEntries(fd.entries());
+    obj.id = obj.id || uid();
+    const idx = DB.proyectos.findIndex(x=>x.id===obj.id);
+    if(idx>-1) DB.proyectos[idx] = obj; else DB.proyectos.push(obj);
+    persist();
+    e.target.reset();
+    render();
+  });
+
+  // CRUD Usuario
+  forms.usuarios.addEventListener('submit', (e)=>{
+    e.preventDefault();
+    const fd = new FormData(e.target);
+    const obj = Object.fromEntries(fd.entries());
+    obj.id = obj.id || uid();
+    const idx = DB.usuarios.findIndex(x=>x.id===obj.id);
+    if(idx>-1) DB.usuarios[idx] = obj; else DB.usuarios.push(obj);
+    persist();
+    e.target.reset();
+    render();
+  });
+
+  // Buscar / limpiar
+  q.addEventListener('input', render);
+  btnClear.addEventListener('click', ()=>{ q.value=''; render(); });
+
+  // Nuevo Avance desde botón superior
+  btnNuevo.addEventListener('click', ()=>{
+    setActive('avances');
+    document.getElementById('form-avance').scrollIntoView({behavior:'smooth', block:'start'});
+  });
+
+  // Exportación CSV
+  btnExport.addEventListener('click', ()=>{
+    const rows = DB[active];
+    if(!rows || !rows.length){ alert('No hay datos para exportar.'); return; }
+    const cols = columns[active].filter(c=>c.key!=='actions');
+    const header = cols.map(c=>c.label||c.key).join(',');
+    const body = rows.map(r=> cols.map(c=> JSON.stringify(r[c.key] ?? '')).join(',')).join('\n');
+    const csv = header+'\n'+body;
+    const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = `${active}.csv`; a.click();
+    URL.revokeObjectURL(url);
+  });
+
+  // Delegación para Editar/Eliminar
+  tbody.addEventListener('click', (e)=>{
+    const btn = e.target.closest('button');
+    if(!btn) return;
+    const id = btn.dataset.edit || btn.dataset.del;
+
+    if(btn.dataset.edit){
+      const list = DB[active];
+      const row = list.find(x=> (x.id||x.idItem)==id);
+      if(!row) return;
+      // cargar en formulario
+      const form = forms[active];
+      Array.from(form.elements).forEach(el=>{
+        if(!el.name) return;
+        if(row[el.name] !== undefined) el.value = row[el.name];
+      });
+      if(active==='items'){ // idItem es number
+        form.querySelector('[name="idItem"]').value = row.idItem;
+      }
+      form.scrollIntoView({behavior:'smooth', block:'start'});
+    }
+
+    if(btn.dataset.del){
+      pendingDelete = {type:active, id};
+      modalText.textContent = `¿Eliminar registro ${id}?`;
+      openModal();
+    }
+  });
+
+  function openModal(){ modal.classList.add('open'); }
+  function closeModal(){ modal.classList.remove('open'); }
+  modalCancel.addEventListener('click', closeModal);
+  modal.addEventListener('click', (e)=>{ if(e.target===modal) closeModal(); });
+  modalOk.addEventListener('click', ()=>{
+    if(!pendingDelete) return closeModal();
+    const k = pendingDelete.type;
+    const id = pendingDelete.id;
+    DB[k] = DB[k].filter(x=> (x.id||x.idItem)!=id);
+    persist();
+    render();
+    pendingDelete = null;
+    closeModal();
+  });
+
+  // Inicialización: columnas y datos demo opcionales
+  if(!DB.__seeded){
+    // Semilla opcional: elimina si no quieres datos de ejemplo
+    DB.items.push({idItem:1,nItem:'Cimentación',PU:150.5,unidades:'m³',creadoPor:'Sistema'});
+    DB.proyectos.push({id:uid(),nombreProyecto:'Edificio A',empresa:'Constructora X',codProyecto:'PR-001',geolocalizacion:'-17.78,-63.18',directorProyecto:'Ing. López',rniDirector:1234,cuce:'21-0123-00-12345'});
+    DB.avances.push({id:uid(),fechaInicio:'2025-09-01',fechaFin:'2025-09-05',itemAvanzado:'Cimentación',residente:'Ana Pérez',ejeX:'A',ejeY:'2',nPiso:'1',cantidad:12.5,costo:1881.25});
+    DB.usuarios.push({id:uid(),nombre:'Admin',apellido:'Sistema',correo:'admin@obra.local',RNI:0,password:'***'});
+    DB.__seeded = true;
+    persist();
+  }
+
+  render();
+
+  </script>
+</body>
+</html>
