@@ -9,6 +9,9 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import java.util.Date;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class RegistroAvance {
     private static List<Items> listaItems = new ArrayList<>();
     private static List<Avance> listaAvances = new ArrayList<>();
@@ -61,6 +64,10 @@ public class RegistroAvance {
             System.out.println(item);
         }
     }
+
+    private static Proyectos proyecto;
+    List<Proyectos> listaProyectos = new ArrayList<>();
+    Proyectos proyectos= new Proyectos("Red Tower", "ConstructoraUPB", "proy1","aqui","Andrew", 4,"cuce123");
 
     private static void agregarItem() {
         mostrarItems();
@@ -189,33 +196,131 @@ public class RegistroAvance {
             Workbook workbook = new XSSFWorkbook();
             Sheet sheet = workbook.createSheet("Avances");
 
-            // Encabezados
-            Row header = sheet.createRow(0);
-            header.createCell(0).setCellValue("Item");
-            header.createCell(1).setCellValue("Cantidad");
-            header.createCell(2).setCellValue("Unidad");
-            header.createCell(3).setCellValue("Fecha Inicio");
-            header.createCell(4).setCellValue("Fecha Fin");
+            // Estilos
+            CellStyle negrita = workbook.createCellStyle();
+            Font fontBold = workbook.createFont();
+            fontBold.setBold(true);
+            negrita.setFont(fontBold);
+            negrita.setAlignment(HorizontalAlignment.LEFT);
 
-            int rowNum = 1;
-            for (Avance avance : avancesFiltrados) {
-                Row row = sheet.createRow(rowNum++);
-                row.createCell(0).setCellValue(avance.getItemAvanzado().getNombreItem());
-                row.createCell(1).setCellValue(avance.getCantidad());
-                row.createCell(2).setCellValue(avance.getItemAvanzado().getUnidades());
-                row.createCell(3).setCellValue(sdf.format(avance.getFechaInicio()));
-                row.createCell(4).setCellValue(sdf.format(avance.getFechaFin()));
+            CellStyle fechaStyle = workbook.createCellStyle();
+            CreationHelper helper = workbook.getCreationHelper();
+            fechaStyle.setDataFormat(helper.createDataFormat().getFormat("dd/MM/yyyy"));
+
+            CellStyle encabezadoStyle = workbook.createCellStyle();
+            Font encabezadoFont = workbook.createFont();
+            encabezadoFont.setBold(true);
+            encabezadoFont.setFontHeightInPoints((short) 11);
+            encabezadoStyle.setFont(encabezadoFont);
+            encabezadoStyle.setAlignment(HorizontalAlignment.CENTER);
+            encabezadoStyle.setFillForegroundColor(IndexedColors.GREY_25_PERCENT.getIndex());
+            encabezadoStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+            encabezadoStyle.setBorderBottom(BorderStyle.THIN);
+            encabezadoStyle.setBorderTop(BorderStyle.THIN);
+            encabezadoStyle.setBorderLeft(BorderStyle.THIN);
+            encabezadoStyle.setBorderRight(BorderStyle.THIN);
+
+            CellStyle dineroStyle = workbook.createCellStyle();
+            dineroStyle.setDataFormat(helper.createDataFormat().getFormat("#,##0.00"));
+
+            // B2: Nombre de la empresa
+            Row row2 = sheet.createRow(1);
+            row2.createCell(1).setCellValue("Nombre de la empresa");
+
+            // B3: Nombre del proyecto
+            Row row3 = sheet.createRow(2);
+            row3.createCell(1).setCellValue("Nombre del proyecto");
+
+            // B5: "cod:" en negrita
+            Row row5 = sheet.createRow(4);
+            Cell codCell = row5.createCell(1);
+            codCell.setCellValue("cod:");
+            codCell.setCellStyle(negrita);
+
+            // C4: Código del proyecto
+            Row row4 = sheet.getRow(3);
+            if (row4 == null) row4 = sheet.createRow(3);
+            row4.createCell(2).setCellValue("Codigo del proyecto");
+
+            // B6 y C6: Fecha de inicio
+            Row row6 = sheet.createRow(5);
+            Cell fiLabel = row6.createCell(1);
+            fiLabel.setCellValue("Fecha de Inicio:");
+            fiLabel.setCellStyle(negrita);
+            Cell fiValue = row6.createCell(2);
+            fiValue.setCellValue(fechaInicio);
+            fiValue.setCellStyle(fechaStyle);
+
+            // B7 y C7: Fecha final
+            Row row7 = sheet.createRow(6);
+            Cell ffLabel = row7.createCell(1);
+            ffLabel.setCellValue("Fecha Final:");
+            ffLabel.setCellStyle(negrita);
+            Cell ffValue = row7.createCell(2);
+            ffValue.setCellValue(fechaFin);
+            ffValue.setCellStyle(fechaStyle);
+
+            // Fila 9 (índice 8): Encabezados desde columna B (índice 1)
+            Row headerRow = sheet.createRow(8);
+            String[] headers = {"N°", "Item", "und", "Cantidad", "Precio Unitario", "Costo"};
+            for (int i = 0; i < headers.length; i++) {
+                Cell cell = headerRow.createCell(i + 1);
+                cell.setCellValue(headers[i]);
+                cell.setCellStyle(encabezadoStyle);
             }
 
+            // Fila 10 en adelante: Datos
+            int rowIndex = 9;
+            int contador = 1;
+            double totalCosto = 0.0;
+
+            for (Avance avance : avancesFiltrados) {
+                Row row = sheet.createRow(rowIndex++);
+                double cantidad = avance.getCantidad();
+                double precio = avance.getItemAvanzado().getPU();
+                double costo = cantidad * precio;
+                totalCosto += costo;
+
+                row.createCell(1).setCellValue(contador++);
+                row.createCell(2).setCellValue(avance.getItemAvanzado().getNombreItem());
+                row.createCell(3).setCellValue(avance.getItemAvanzado().getUnidades());
+                row.createCell(4).setCellValue(cantidad);
+
+                Cell precioCell = row.createCell(5);
+                precioCell.setCellValue(precio);
+                precioCell.setCellStyle(dineroStyle);
+
+                Cell costoCell = row.createCell(6);
+                costoCell.setCellValue(costo);
+                costoCell.setCellStyle(dineroStyle);
+            }
+
+            // Fila vacía
+            rowIndex++;
+
+            // Fila Total
+            Row totalRow = sheet.createRow(rowIndex++);
+            Cell labelTotal = totalRow.createCell(1);
+            labelTotal.setCellValue("Costo Total del Periodo");
+            labelTotal.setCellStyle(negrita);
+
+            Cell totalValor = totalRow.createCell(6);
+            totalValor.setCellValue(totalCosto);
+            totalValor.setCellStyle(dineroStyle);
+
+            Cell moneda = totalRow.createCell(7);
+            moneda.setCellValue("Bs.");
+
             // Autoajuste de columnas
-            for (int i = 0; i < 5; i++) {
+            for (int i = 1; i <= 7; i++) {
                 sheet.autoSizeColumn(i);
             }
 
+            // Guardar archivo
             String fileName = "Reporte_Avances_" + System.currentTimeMillis() + ".xlsx";
-            FileOutputStream fileOut = new FileOutputStream(fileName);
-            workbook.write(fileOut);
-            fileOut.close();
+            try (FileOutputStream fileOut = new FileOutputStream(fileName)) {
+                workbook.write(fileOut);
+            }
             workbook.close();
 
             System.out.println("📁 Reporte generado exitosamente: " + fileName);
@@ -224,4 +329,6 @@ public class RegistroAvance {
             System.out.println("❌ Error al generar el reporte: " + e.getMessage());
         }
     }
+}
+
 }
